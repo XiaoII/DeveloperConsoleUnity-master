@@ -26,7 +26,8 @@ namespace Console
     public class DeveloperConsole : MonoBehaviour
     {
         public static DeveloperConsole Instance { get; private set; }
-        public static Dictionary<string, ConsoleCommand> Commands { get; private set; }
+        public static Dictionary<string, ConsoleCommand> LoggedInCommands { get; private set; }
+        public static Dictionary<string, ConsoleCommand> LoggedOutCommands { get; private set; }
 
         [Header("UI Components")]
         public Canvas consoleCanvas;
@@ -43,44 +44,52 @@ namespace Console
             }
 
             Instance = this;
-
-            if (!loggedIn)
-            {
-                //if not logged in (logged in = false) then run a different dictionary of commands to logged in.
-            }
-            else
-            {
-                //register a different dictionary of commands
-            }
-
-
-
-            Commands = new Dictionary<string, ConsoleCommand>();
             consoleInput.ActivateInputField();
+
+
+            LoggedInCommands = new Dictionary<string, ConsoleCommand>();
+            LoggedOutCommands = new Dictionary<string, ConsoleCommand>();
+
         }
 
         private void Start()
         {
             consoleCanvas.gameObject.SetActive(true);
-            CreateCommands();
+            CreateLoggedInCommands();
+            CreateLoggedOutCommands();
         }
 
         //list all commands here 
-        private void CreateCommands()
+        public void CreateLoggedInCommands()
             
         {
             CommandHelp.CreateCommand();
-            CommandLogin.CreateCommand();
             CommandQuit.CreateCommand();
+            CommandLogout.CreateCommand();
             
+        }
+        private void CreateLoggedOutCommands()
+
+        {
+            CommandLogin.CreateCommand();
         }
 
         //create dictionary commands - change to logged out and logged in dictionaries
         public static void AddCommandsToConsole(string _name, ConsoleCommand _command)
         {
-            if(!Commands.ContainsKey(_name))
+            if (DeveloperConsole.Instance.loggedIn == true)
             {
-                Commands.Add(_name, _command);
+                if (!LoggedInCommands.ContainsKey(_name))
+                {
+                    LoggedInCommands.Add(_name, _command);
+                }
+            }
+            else
+            {
+                if (!LoggedOutCommands.ContainsKey(_name))
+                {
+                    LoggedOutCommands.Add(_name, _command);
+                }
             }
         }
 
@@ -110,21 +119,43 @@ namespace Console
         //where run command is called - need a second one if logged in/out to check different dictionaries?
         private void ParseInput(string input)
         {
-            string[] _input = input.Split(null);
-
-            if (_input.Length == 0 || _input == null)
+            if (loggedIn == true)
             {
-                AddMessageToConsole("Command not recognized. Use Help to see a list of available commands");
-                return;
-            }
+                string[] _input = input.Split(null);
 
-            if (!Commands.ContainsKey(_input[0]))
-            {
-                AddMessageToConsole("Command not recognized. Use Help to see a list of available commands");
+                if (_input.Length == 0 || _input == null)
+                {
+                    AddMessageToConsole("Command not recognized. Use Help to see a list of available commands");
+                    return;
+                }
+
+                if (!LoggedInCommands.ContainsKey(_input[0]))
+                {
+                    AddMessageToConsole("Command not recognized. Use Help to see a list of available commands");
+                }
+                else
+                {
+                    LoggedInCommands[_input[0]].RunCommand();
+                }
             }
             else
             {
-                Commands[_input[0]].RunCommand();
+                string[] _input = input.Split(null);
+
+                if (_input.Length == 0 || _input == null)
+                {
+                    AddMessageToConsole("You are not logged in. Please login to continue.");
+                    return;
+                }
+
+                if (!LoggedOutCommands.ContainsKey(_input[0]))
+                {
+                    AddMessageToConsole("Command not recognised");
+                }
+                else
+                {
+                    LoggedOutCommands[_input[0]].RunCommand();
+                }
             }
 
          }

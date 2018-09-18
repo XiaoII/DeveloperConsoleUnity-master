@@ -27,7 +27,7 @@ namespace Console
         {
 
             AddMessageToConsole("Available Commands:");
-            foreach (KeyValuePair<string, ConsoleCommand> command in DeveloperConsole.Commands)
+            foreach (KeyValuePair<string, ConsoleCommand> command in DeveloperConsole.LoggedInCommands)
             {
                 AddMessageToConsole("-------------------------------------------------");
                 //AddMessageToConsole(command.Key);

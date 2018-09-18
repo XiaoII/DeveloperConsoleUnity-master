@@ -20,7 +20,7 @@ namespace Console
         public CommandLogin()
         {
             Name = "Login";
-            Command = "Login";
+            Command = "login";
             Description = "Login to the terminal";
             Help = "Type Login, then enter username and password separated by a space";
 
@@ -29,12 +29,20 @@ namespace Console
 
         public override void RunCommand()
         {
-            //do the thing the command is meant to do here
+            DeveloperConsole.Instance.loggedIn = true;
+            AddMessageToConsole("You have been logged in");
+            DeveloperConsole.Instance.CreateLoggedInCommands();
         }
+
 
         public static CommandLogin CreateCommand()
         {
             return new CommandLogin();
+        }
+
+        private void AddMessageToConsole(string msg)
+        {
+            DeveloperConsole.Instance.consoleText.text += msg + "\n";
         }
     }
 }
